@@ -30,6 +30,7 @@ func (g *GrayImages) Processing(partial bool) (int, interface{}, map[string]stri
 	//extracting the file from http message
 	file, reqContentType, err := g.generalFunc.CopyingFileToTheBuffer(g.methodName)
 	if err != nil {
+		log.Println("30")
 		return utils.InternalServerErrStatusCodeStr, nil, serviceHeaders
 	}
 	//getting the extension of the file
@@ -69,6 +70,7 @@ func (g *GrayImages) Processing(partial bool) (int, interface{}, map[string]stri
 				return utils.OkStatusCodeStr, g.httpMsg.Response, serviceHeaders
 			}
 		} else if g.extArrs[i].Name == "bypass" {
+			log.Println("70")
 			if g.generalFunc.IfFileExtIsX(fileExtension, g.bypassExts) {
 				fileAfterPrep, httpMsg := g.generalFunc.IfICAPStatusIs204(g.methodName, utils.NoModificationStatusCodeStr,
 					file, false, reqContentType, g.httpMsg)
@@ -101,11 +103,14 @@ func (g *GrayImages) Processing(partial bool) (int, interface{}, map[string]stri
 		switch msg := httpMsg.(type) {
 		case *http.Request:
 			msg.Body = io.NopCloser(bytes.NewBuffer(fileAfterPrep))
+			log.Println("104")
 			return status, msg, nil
 		case *http.Response:
 			msg.Body = io.NopCloser(bytes.NewBuffer(fileAfterPrep))
+			log.Println("108")
 			return status, msg, nil
 		}
+		log.Println("111")
 		return status, nil, nil
 	}
 
