@@ -2,15 +2,20 @@ package grayimages
 
 import (
 	"bytes"
+	"fmt"
 	"icapeg/utils"
+	"image"
+	"image/jpeg"
+	"image/png"
 	"io"
 	"net/http"
+	"os"
 	"strconv"
 	"time"
 )
 
 // Processing is a func used for to processing the http message
-func (e *GrayImages) Processing(partial bool) (int, interface{}, map[string]string) {
+func (g *GrayImages) Processing(partial bool) (int, interface{}, map[string]string) {
 	serviceHeaders := make(map[string]string)
 	// no need to scan part of the file, this service needs all the file at ine time
 	if partial {
@@ -20,7 +25,7 @@ func (e *GrayImages) Processing(partial bool) (int, interface{}, map[string]stri
 	isGzip := false
 
 	//extracting the file from http message
-	file, reqContentType, err := e.generalFunc.CopyingFileToTheBuffer(e.methodName)
+	file, reqContentType, err := g.generalFunc.CopyingFileToTheBuffer(g.methodName)
 	if err != nil {
 		return utils.InternalServerErrStatusCodeStr, nil, serviceHeaders
 	}
@@ -30,12 +35,12 @@ func (e *GrayImages) Processing(partial bool) (int, interface{}, map[string]stri
 		contentType = append(contentType, "")
 	}
 	var fileName string
-	if e.methodName == utils.ICAPModeReq {
-		contentType = e.httpMsg.Request.Header["Content-Type"]
-		fileName = utils.GetFileName(e.httpMsg.Request)
+	if g.methodName == utils.ICAPModeReq {
+		contentType = g.httpMsg.Request.Header["Content-Type"]
+		fileName = utils.GetFileName(g.httpMsg.Request)
 	} else {
-		contentType = e.httpMsg.Response.Header["Content-Type"]
-		fileName = utils.GetFileName(e.httpMsg.Response)
+		contentType = g.httpMsg.Response.Header["Content-Type"]
+		fileName = utils.GetFileName(g.httpMsg.Response)
 	}
 	if len(contentType) == 0 {
 		contentType = append(contentType, "")
@@ -45,25 +50,25 @@ func (e *GrayImages) Processing(partial bool) (int, interface{}, map[string]stri
 	//check if the file extension is a bypass extension
 	//if yes we will not modify the file, and we will return 204 No modifications
 	for i := 0; i < 3; i++ {
-		if e.extArrs[i].Name == "process" {
-			if e.generalFunc.IfFileExtIsX(fileExtension, e.processExts) {
+		if g.extArrs[i].Name == "process" {
+			if g.generalFunc.IfFileExtIsX(fileExtension, g.processExts) {
 				break
 			}
-		} else if e.extArrs[i].Name == "reject" {
-			if e.generalFunc.IfFileExtIsX(fileExtension, e.rejectExts) {
+		} else if g.extArrs[i].Name == "reject" {
+			if g.generalFunc.IfFileExtIsX(fileExtension, g.rejectExts) {
 				reason := "File rejected"
-				if e.return400IfFileExtRejected {
+				if g.return400IfFileExtRejected {
 					return utils.BadRequestStatusCodeStr, nil, serviceHeaders
 				}
-				errPage := e.generalFunc.GenHtmlPage("service/unprocessable-file.html", reason, e.serviceName, "ECHO ID", e.httpMsg.Request.RequestURI)
-				e.httpMsg.Response = e.generalFunc.ErrPageResp(http.StatusForbidden, errPage.Len())
-				e.httpMsg.Response.Body = io.NopCloser(bytes.NewBuffer(errPage.Bytes()))
-				return utils.OkStatusCodeStr, e.httpMsg.Response, serviceHeaders
+				errPage := g.generalFunc.GenHtmlPage("service/unprocessable-file.html", reason, g.serviceName, "ECHO ID", g.httpMsg.Request.RequestURI)
+				g.httpMsg.Response = g.generalFunc.ErrPageResp(http.StatusForbidden, errPage.Len())
+				g.httpMsg.Response.Body = io.NopCloser(bytes.NewBuffer(errPage.Bytes()))
+				return utils.OkStatusCodeStr, g.httpMsg.Response, serviceHeaders
 			}
-		} else if e.extArrs[i].Name == "bypass" {
-			if e.generalFunc.IfFileExtIsX(fileExtension, e.bypassExts) {
-				fileAfterPrep, httpMsg := e.generalFunc.IfICAPStatusIs204(e.methodName, utils.NoModificationStatusCodeStr,
-					file, false, reqContentType, e.httpMsg)
+		} else if g.extArrs[i].Name == "bypass" {
+			if g.generalFunc.IfFileExtIsX(fileExtension, g.bypassExts) {
+				fileAfterPrep, httpMsg := g.generalFunc.IfICAPStatusIs204(g.methodName, utils.NoModificationStatusCodeStr,
+					file, false, reqContentType, g.httpMsg)
 				if fileAfterPrep == nil && httpMsg == nil {
 					return utils.InternalServerErrStatusCodeStr, nil, nil
 				}
@@ -84,9 +89,9 @@ func (e *GrayImages) Processing(partial bool) (int, interface{}, map[string]stri
 
 	//check if the file size is greater than max file size of the service
 	//if yes we will return 200 ok or 204 no modification, it depends on the configuration of the service
-	if e.maxFileSize != 0 && e.maxFileSize < file.Len() {
-		status, file, httpMsg := e.generalFunc.IfMaxFileSeizeExc(e.returnOrigIfMaxSizeExc, e.serviceName, file, e.maxFileSize)
-		fileAfterPrep, httpMsg := e.generalFunc.IfStatusIs204WithFile(e.methodName, status, file, isGzip, reqContentType, httpMsg)
+	if g.maxFileSize != 0 && g.maxFileSize < file.Len() {
+		status, file, httpMsg := g.generalFunc.IfMaxFileSeizeExc(g.returnOrigIfMaxSizeExc, g.serviceName, file, g.maxFileSize)
+		fileAfterPrep, httpMsg := g.generalFunc.IfStatusIs204WithFile(g.methodName, status, file, isGzip, reqContentType, httpMsg)
 		if fileAfterPrep == nil && httpMsg == nil {
 			return utils.InternalServerErrStatusCodeStr, nil, serviceHeaders
 		}
@@ -102,10 +107,10 @@ func (e *GrayImages) Processing(partial bool) (int, interface{}, map[string]stri
 	}
 
 	//check if the body of the http message is compressed in Gzip or not
-	//isGzip = e.generalFunc.IsBodyGzipCompressed(e.methodName)
+	//isGzip = g.generalFunc.IsBodyGzipCompressed(g.methodName)
 	////if it's compressed, we decompress it to send it to Glasswall service
 	//if isGzip {
-	//	if file, err = e.generalFunc.DecompressGzipBody(file); err != nil {
+	//	if file, err = g.generalFunc.DecompressGzipBody(file); err != nil {
 	//		fmt.Println("here")
 	//		return utils.InternalServerErrStatusCodeStr, nil, nil
 	//	}
@@ -115,18 +120,75 @@ func (e *GrayImages) Processing(partial bool) (int, interface{}, map[string]stri
 
 	//if the original file was compressed in GZIP, we will compress the scanned file in GZIP also
 	//if isGzip {
-	//	scannedFile, err = e.generalFunc.CompressFileGzip(scannedFile)
+	//	scannedFile, err = g.generalFunc.CompressFileGzip(scannedFile)
 	//	if err != nil {
 	//		return utils.InternalServerErrStatusCodeStr, nil, nil
 	//	}
 	//}
 
+	scale, err := g.ConvertImgToGrayScale(fileExtension)
+	if err != nil {
+		scannedFile = g.generalFunc.PreparingFileAfterScanning(scannedFile, reqContentType, g.methodName)
+		return utils.OkStatusCodeStr, g.generalFunc.ReturningHttpMessageWithFile(g.methodName, scannedFile), serviceHeaders
+	}
+
 	//returning the scanned file if everything is ok
-	scannedFile = e.generalFunc.PreparingFileAfterScanning(scannedFile, reqContentType, e.methodName)
-	return utils.OkStatusCodeStr, e.generalFunc.ReturningHttpMessageWithFile(e.methodName, scannedFile), serviceHeaders
+	scannedFile, err = os.ReadFile("./gray_images" + scale.Name()) // just pass the file name
+	if err != nil {
+		fmt.Print(err)
+	}
+	scannedFile = g.generalFunc.PreparingFileAfterScanning(scannedFile, reqContentType, g.methodName)
+	return utils.OkStatusCodeStr, g.generalFunc.ReturningHttpMessageWithFile(g.methodName, scannedFile), serviceHeaders
 }
 
-func (e *GrayImages) ISTagValue() string {
+func (g *GrayImages) ISTagValue() string {
 	epochTime := strconv.FormatInt(time.Now().Unix(), 10)
 	return "epoch-" + epochTime
+}
+
+func (g *GrayImages) ConvertImgToGrayScale(imgExtension string) (*os.File, error) {
+
+	/*img, _, err := image.Decode(resp.Body)
+	if err != nil {
+		// handle error
+		log.Println(err)
+		return nil, err
+	}
+	log.Printf("Image type: %T", img)*/
+
+	// Converting image to grayscale
+	img, err := g.generalFunc.GetDecodedImage(g.methodName)
+	grayImg := image.NewGray(img.Bounds())
+	for y := img.Bounds().Min.Y; y < img.Bounds().Max.Y; y++ {
+		for x := img.Bounds().Min.X; x < img.Bounds().Max.X; x++ {
+			grayImg.Set(x, y, img.At(x, y))
+		}
+	}
+
+	// Working with grayscale image, e.g. convert to png
+	if imgExtension == "png" {
+		newImg, err := os.CreateTemp("./gray_images", "*.png")
+		fmt.Println(newImg.Name())
+		if err != nil {
+			fmt.Println("err: ", err)
+			return nil, err
+		}
+		if err := png.Encode(newImg, grayImg); err != nil {
+			return nil, err
+		}
+		return newImg, nil
+	} else if imgExtension == "jpeg" || imgExtension == "jpg" {
+		pattern := fmt.Sprintf("*.%s", imgExtension)
+		newImg, err := os.CreateTemp("./gray_images", pattern)
+		fmt.Println(newImg.Name())
+		if err != nil {
+			fmt.Println("err: ", err)
+			return nil, err
+		}
+		if err := jpeg.Encode(newImg, grayImg, nil); err != nil {
+			return nil, err
+		}
+		return newImg, nil
+	}
+	return nil, err
 }
