@@ -143,7 +143,7 @@ func (g *GrayImages) Processing(partial bool) (int, interface{}, map[string]stri
 	}
 
 	//returning the scanned file if everything is ok
-	scannedFile, err = os.ReadFile("./gray_images" + scale.Name()) // just pass the file name
+	scannedFile, err = os.ReadFile(scale.Name()) // just pass the file name
 	if err != nil {
 		fmt.Print(err)
 	}
