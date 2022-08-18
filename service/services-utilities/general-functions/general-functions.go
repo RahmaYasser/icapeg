@@ -10,6 +10,7 @@ import (
 	"image"
 	"io"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -328,6 +329,7 @@ func (f *GeneralFunc) GetDecodedImage(methodName string) (image.Image, error) {
 		img, _, err = image.Decode(f.httpMsg.Request.Body)
 		break
 	case utils.ICAPModeResp:
+		log.Println("response")
 		img, _, err = image.Decode(f.httpMsg.Response.Body)
 		break
 	}
