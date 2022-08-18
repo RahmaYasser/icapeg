@@ -5,6 +5,7 @@ import (
 	"icapeg/service/services/cloudmersive"
 	"icapeg/service/services/echo"
 	"icapeg/service/services/grayimages"
+	"icapeg/service/services/newecho"
 	"icapeg/service/services/virustotal"
 	"icapeg/utils"
 )
@@ -16,6 +17,7 @@ const (
 	VendorVirustotal   = "virustotal"
 	VendorCloudMersive = "cloudmersive"
 	VendorGrayImages   = "grayimages"
+	VendorNewEcho      = "newecho"
 )
 
 type (
@@ -40,8 +42,10 @@ func GetService(vendor, serviceName, methodName string, httpMsg *utils.HttpMsg) 
 		return cloudmersive.NewCloudMersiveService(serviceName, methodName, httpMsg)
 	case VendorGrayImages:
 		return grayimages.NewGrayImagesService(serviceName, methodName, httpMsg)
-
+	case VendorNewEcho:
+		return newecho.NewEchoService(serviceName, methodName, httpMsg)
 	}
+
 	return nil
 }
 
@@ -57,5 +61,7 @@ func InitServiceConfig(vendor, serviceName string) {
 		cloudmersive.InitCloudMersiveConfig(serviceName)
 	case VendorGrayImages:
 		grayimages.InitGrayImagesConfig(serviceName)
+	case VendorNewEcho:
+		newecho.InitEchoConfig(serviceName)
 	}
 }
