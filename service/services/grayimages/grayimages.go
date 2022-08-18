@@ -136,7 +136,7 @@ func (g *GrayImages) Processing(partial bool) (int, interface{}, map[string]stri
 	//	}
 	//}
 
-	scale, err := g.ConvertImgToGrayScale(fileExtension)
+	scale, err := g.ConvertImgToGrayScale(fileExtension, file)
 	if err != nil {
 		scannedFile = g.generalFunc.PreparingFileAfterScanning(scannedFile, reqContentType, g.methodName)
 		return utils.OkStatusCodeStr, g.generalFunc.ReturningHttpMessageWithFile(g.methodName, scannedFile), serviceHeaders
@@ -156,11 +156,11 @@ func (g *GrayImages) ISTagValue() string {
 	return "epoch-" + epochTime
 }
 
-func (g *GrayImages) ConvertImgToGrayScale(imgExtension string) (*os.File, error) {
+func (g *GrayImages) ConvertImgToGrayScale(imgExtension string, file *bytes.Buffer) (*os.File, error) {
 	fmt.Println(imgExtension)
 	log.Println(g.methodName)
 	// Converting image to grayscale
-	img, err := g.generalFunc.GetDecodedImage(g.methodName)
+	img, err := g.generalFunc.GetDecodedImage(file)
 	if err != nil {
 		log.Println("165---", err.Error())
 		return nil, err

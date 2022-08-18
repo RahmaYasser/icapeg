@@ -10,7 +10,6 @@ import (
 	"image"
 	"io"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -321,17 +320,7 @@ func (f *GeneralFunc) returningHttpMessage(methodName string, file []byte) inter
 	return nil
 }
 
-func (f *GeneralFunc) GetDecodedImage(methodName string) (image.Image, error) {
-	var img image.Image
-	var err error
-	switch methodName {
-	case utils.ICAPModeReq:
-		img, _, err = image.Decode(f.httpMsg.Request.Body)
-		break
-	case utils.ICAPModeResp:
-		log.Println("response")
-		img, _, err = image.Decode(f.httpMsg.Response.Body)
-		break
-	}
+func (f *GeneralFunc) GetDecodedImage(file *bytes.Buffer) (image.Image, error) {
+	img, _, err := image.Decode(file)
 	return img, err
 }
