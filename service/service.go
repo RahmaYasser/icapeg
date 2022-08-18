@@ -43,7 +43,7 @@ func GetService(vendor, serviceName, methodName string, httpMsg *utils.HttpMsg) 
 	case VendorGrayImages:
 		return grayimages.NewGrayImagesService(serviceName, methodName, httpMsg)
 	case VendorNewEcho:
-		return newecho.NewEchoService(serviceName, methodName, httpMsg)
+		return newecho.NewNewEchoService(serviceName, methodName, httpMsg)
 	}
 
 	return nil

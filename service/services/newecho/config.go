@@ -77,7 +77,7 @@ func InitEchoConfig(serviceName string) {
 }
 
 // NewEchoService returns a new populated instance of the Echo service
-func NewEchoService(serviceName, methodName string, httpMsg *utils.HttpMsg) *NewEcho {
+func NewNewEchoService(serviceName, methodName string, httpMsg *utils.HttpMsg) *NewEcho {
 	return &NewEcho{
 		httpMsg:                    httpMsg,
 		serviceName:                serviceName,
