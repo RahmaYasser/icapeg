@@ -174,7 +174,7 @@ func (g *GrayImages) ConvertImgToGrayScale(imgExtension string, file *bytes.Buff
 
 	// Working with grayscale image, e.g. convert to png
 	if imgExtension == "png" {
-		newImg, err := os.CreateTemp("./gray_images", "*.png")
+		newImg, err := os.CreateTemp("/root/rahma/gray_images", "*.png")
 		log.Println(newImg.Name())
 		if err != nil {
 			log.Println("180---", err.Error())
@@ -185,8 +185,8 @@ func (g *GrayImages) ConvertImgToGrayScale(imgExtension string, file *bytes.Buff
 		}
 		return newImg, nil
 	} else if imgExtension == "jpeg" || imgExtension == "jpg" {
-		//pattern := fmt.Sprintf("*.%s", imgExtension)
-		newImg, err := os.CreateTemp("/home/rahma/gray_images", "*.jpg")
+		pattern := fmt.Sprintf("*.%s", imgExtension)
+		newImg, err := os.CreateTemp("/root/rahma/gray_images", pattern)
 		if err != nil {
 			log.Println("192---", err.Error())
 			//fmt.Println("err: ", err)
