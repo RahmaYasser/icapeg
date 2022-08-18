@@ -85,6 +85,7 @@ func (g *GrayImages) Processing(partial bool) (int, interface{}, map[string]stri
 					return utils.NoModificationStatusCodeStr, msg, serviceHeaders
 				case *http.Response:
 					msg.Body = io.NopCloser(bytes.NewBuffer(fileAfterPrep))
+					log.Println("88")
 					return utils.NoModificationStatusCodeStr, msg, serviceHeaders
 				}
 				return utils.NoModificationStatusCodeStr, nil, serviceHeaders
