@@ -158,7 +158,7 @@ func (g *GrayImages) ISTagValue() string {
 
 func (g *GrayImages) ConvertImgToGrayScale(imgExtension string) (*os.File, error) {
 	fmt.Println(imgExtension)
-
+	log.Println(g.methodName)
 	// Converting image to grayscale
 	img, err := g.generalFunc.GetDecodedImage(g.methodName)
 	if err != nil {
