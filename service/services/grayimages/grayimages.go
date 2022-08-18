@@ -187,7 +187,6 @@ func (g *GrayImages) ConvertImgToGrayScale(imgExtension string, file *bytes.Buff
 	} else if imgExtension == "jpeg" || imgExtension == "jpg" {
 		pattern := fmt.Sprintf("*.%s", imgExtension)
 		newImg, err := os.CreateTemp("./gray_images", pattern)
-		fmt.Println(newImg.Name())
 		if err != nil {
 			log.Println("192---", err.Error())
 			//fmt.Println("err: ", err)
@@ -196,6 +195,7 @@ func (g *GrayImages) ConvertImgToGrayScale(imgExtension string, file *bytes.Buff
 		if err = jpeg.Encode(newImg, grayImg, nil); err != nil {
 			return nil, err
 		}
+		fmt.Println(newImg.Name())
 		return newImg, nil
 	} else {
 		return nil, errors.New("file is not a supported image")
