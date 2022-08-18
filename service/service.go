@@ -16,7 +16,6 @@ const (
 	VendorVirustotal   = "virustotal"
 	VendorCloudMersive = "cloudmersive"
 	VendorGrayImages   = "grayimages"
-	VendorNewEcho      = "grayimages"
 )
 
 type (
