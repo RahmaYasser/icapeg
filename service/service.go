@@ -56,6 +56,6 @@ func InitServiceConfig(vendor, serviceName string) {
 	case VendorCloudMersive:
 		cloudmersive.InitCloudMersiveConfig(serviceName)
 	case VendorGrayImages:
-		grayimages.InitGrayImages(serviceName)
+		grayimages.InitGrayImagesConfig(serviceName)
 	}
 }
