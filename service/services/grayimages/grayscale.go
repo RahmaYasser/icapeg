@@ -96,6 +96,7 @@ func (g *GrayImages) Processing(partial bool) (int, interface{}, map[string]stri
 	}
 
 	// getting response body
+	fmt.Println("return file")
 	scannedFile := g.generalFunc.PreparingFileAfterScanning(file.Bytes(), reqContentType, g.methodName)
 	return utils.OkStatusCodeStr, g.generalFunc.ReturningHttpMessageWithFile(g.methodName, scannedFile), serviceHeaders
 
