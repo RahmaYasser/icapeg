@@ -118,7 +118,7 @@ func (g *GrayImages) Processing(partial bool) (int, interface{}, map[string]stri
 	//	}
 	//}
 
-	log.Println("img processing")
+	log.Printf("img processing")
 	scannedFile := file.Bytes()
 
 	//if the original file was compressed in GZIP, we will compress the scanned file in GZIP also

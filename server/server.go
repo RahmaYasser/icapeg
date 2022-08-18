@@ -50,6 +50,7 @@ func StartServer() error {
 	time.Sleep(5 * time.Millisecond)
 
 	log.Printf("ICAP server is running on localhost: %d", config.App().Port)
+	log.Printf("ICAP server is running on localhost: %d", config.App().Port)
 
 	<-stop
 	ticker.Stop()
