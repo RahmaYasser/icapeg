@@ -33,6 +33,7 @@ func (g *GrayImages) Processing(partial bool) (int, interface{}, map[string]stri
 		log.Println("30")
 		return utils.InternalServerErrStatusCodeStr, nil, serviceHeaders
 	}
+
 	//getting the extension of the file
 	var contentType []string
 	if len(contentType) == 0 {
@@ -115,6 +116,13 @@ func (g *GrayImages) Processing(partial bool) (int, interface{}, map[string]stri
 		return status, nil, nil
 	}
 
+	isGzip = g.generalFunc.IsBodyGzipCompressed(g.methodName)
+	//if it's compressed, we decompress it to send it to Glasswall service
+	if isGzip {
+		if file, err = g.generalFunc.DecompressGzipBody(file); err != nil {
+			return utils.InternalServerErrStatusCodeStr, nil, nil
+		}
+	}
 	//check if the body of the http message is compressed in Gzip or not
 	//isGzip = g.generalFunc.IsBodyGzipCompressed(g.methodName)
 	////if it's compressed, we decompress it to send it to Glasswall service
