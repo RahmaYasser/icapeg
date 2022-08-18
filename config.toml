@@ -139,6 +139,7 @@ allow_html = true
 allow_insecure_deserialization = false
 restrict_file_types = ""
 
+
 [grayimages]
 vendor = "grayimages"
 service_caption= "grayimages service"   #Service
@@ -151,16 +152,15 @@ preview_enabled = true# options send preview header or not
 process_extensions = ["", "", ""] # * = everything except the ones in bypass, unknown = system couldn't find out the type of the file
 reject_extensions = [""]
 bypass_extensions = ["*"]
-policy = ""
 base_url = "grayimages" #
 scan_endpoint = "grayimages"
 api_key = "<api key>"
-#max file size value from 1 to 9223372036854775807, and value of zero means unlimited
 timeout  = 300 #seconds , ICAP will return 408 - Request timeout
 fail_threshold = 2
 #max file size value from 1 to 9223372036854775807, and value of zero means unlimited
 max_filesize = 0 #bytes
 return_original_if_max_file_size_exceeded=false
+return_400_if_file_ext_rejected=false
 
 
 
