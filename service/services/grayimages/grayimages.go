@@ -162,7 +162,7 @@ func (g *GrayImages) ConvertImgToGrayScale(imgExtension string) (*os.File, error
 	// Converting image to grayscale
 	img, err := g.generalFunc.GetDecodedImage(g.methodName)
 	if err != nil {
-		log.Println(err.Error())
+		log.Println("165---", err.Error())
 		return nil, err
 	}
 	grayImg := image.NewGray(img.Bounds())
@@ -177,7 +177,7 @@ func (g *GrayImages) ConvertImgToGrayScale(imgExtension string) (*os.File, error
 		newImg, err := os.CreateTemp("./gray_images", "*.png")
 		log.Println(newImg.Name())
 		if err != nil {
-			log.Println("err: ", err)
+			log.Println("180---", err.Error())
 			return nil, err
 		}
 		if err = png.Encode(newImg, grayImg); err != nil {
@@ -189,7 +189,8 @@ func (g *GrayImages) ConvertImgToGrayScale(imgExtension string) (*os.File, error
 		newImg, err := os.CreateTemp("./gray_images", pattern)
 		fmt.Println(newImg.Name())
 		if err != nil {
-			fmt.Println("err: ", err)
+			log.Println("192---", err.Error())
+			//fmt.Println("err: ", err)
 			return nil, err
 		}
 		if err = jpeg.Encode(newImg, grayImg, nil); err != nil {
