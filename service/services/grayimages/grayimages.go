@@ -18,6 +18,7 @@ import (
 
 // Processing is a func used for to processing the http message
 func (g *GrayImages) Processing(partial bool) (int, interface{}, map[string]string) {
+	log.Println("processing")
 	serviceHeaders := make(map[string]string)
 	// no need to scan part of the file, this service needs all the file at ine time
 	if partial {
