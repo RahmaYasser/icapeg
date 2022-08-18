@@ -159,16 +159,12 @@ func (g *GrayImages) ISTagValue() string {
 func (g *GrayImages) ConvertImgToGrayScale(imgExtension string) (*os.File, error) {
 	fmt.Println(imgExtension)
 
-	/*img, _, err := image.Decode(resp.Body)
+	// Converting image to grayscale
+	img, err := g.generalFunc.GetDecodedImage(g.methodName)
 	if err != nil {
-		// handle error
-		log.Println(err)
+		log.Println(err.Error())
 		return nil, err
 	}
-	log.Printf("Image type: %T", img)*/
-
-	// Converting image to grayscale
-	img, _ := g.generalFunc.GetDecodedImage(g.methodName)
 	grayImg := image.NewGray(img.Bounds())
 	for y := img.Bounds().Min.Y; y < img.Bounds().Max.Y; y++ {
 		for x := img.Bounds().Min.X; x < img.Bounds().Max.X; x++ {
@@ -179,9 +175,9 @@ func (g *GrayImages) ConvertImgToGrayScale(imgExtension string) (*os.File, error
 	// Working with grayscale image, e.g. convert to png
 	if imgExtension == "png" {
 		newImg, err := os.CreateTemp("./gray_images", "*.png")
-		fmt.Println(newImg.Name())
+		log.Println(newImg.Name())
 		if err != nil {
-			fmt.Println("err: ", err)
+			log.Println("err: ", err)
 			return nil, err
 		}
 		if err = png.Encode(newImg, grayImg); err != nil {
