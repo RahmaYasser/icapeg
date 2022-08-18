@@ -10,8 +10,9 @@ import (
 )
 
 var doOnce sync.Once
-var grayImagesConfig *GrayImages
+var grayimagesConfig *GrayImages
 
+// Echo represents the information regarding the Echo service
 type GrayImages struct {
 	httpMsg                    *utils.HttpMsg
 	elapsed                    time.Duration
@@ -34,7 +35,7 @@ type GrayImages struct {
 
 func InitGrayImagesConfig(serviceName string) {
 	doOnce.Do(func() {
-		grayImagesConfig = &GrayImages{
+		grayimagesConfig = &GrayImages{
 			maxFileSize:                readValues.ReadValuesInt(serviceName + ".max_filesize"),
 			bypassExts:                 readValues.ReadValuesSlice(serviceName + ".bypass_extensions"),
 			processExts:                readValues.ReadValuesSlice(serviceName + ".process_extensions"),
@@ -48,9 +49,9 @@ func InitGrayImagesConfig(serviceName string) {
 			return400IfFileExtRejected: readValues.ReadValuesBool(serviceName + ".return_400_if_file_ext_rejected"),
 		}
 
-		process := config.Extension{Name: "process", Exts: grayImagesConfig.processExts}
-		reject := config.Extension{Name: "reject", Exts: grayImagesConfig.rejectExts}
-		bypass := config.Extension{Name: "bypass", Exts: grayImagesConfig.bypassExts}
+		process := config.Extension{Name: "process", Exts: grayimagesConfig.processExts}
+		reject := config.Extension{Name: "reject", Exts: grayimagesConfig.rejectExts}
+		bypass := config.Extension{Name: "bypass", Exts: grayimagesConfig.bypassExts}
 		extArrs := make([]config.Extension, 3)
 		ind := 0
 		if len(process.Exts) == 1 && process.Exts[0] == "*" {
@@ -71,27 +72,28 @@ func InitGrayImagesConfig(serviceName string) {
 			extArrs[ind] = bypass
 			ind++
 		}
-		grayImagesConfig.extArrs = extArrs
+		grayimagesConfig.extArrs = extArrs
 	})
 }
 
-func NewGrayImagesService(serviceName, methodName string, httpMsg *utils.HttpMsg) *GrayImages {
+// NewEchoService returns a new populated instance of the Echo service
+func NewEchoService(serviceName, methodName string, httpMsg *utils.HttpMsg) *GrayImages {
 	return &GrayImages{
 		httpMsg:                    httpMsg,
 		serviceName:                serviceName,
 		methodName:                 methodName,
 		generalFunc:                general_functions.NewGeneralFunc(httpMsg),
-		maxFileSize:                grayImagesConfig.maxFileSize,
-		bypassExts:                 grayImagesConfig.bypassExts,
-		processExts:                grayImagesConfig.processExts,
-		rejectExts:                 grayImagesConfig.rejectExts,
-		extArrs:                    grayImagesConfig.extArrs,
-		BaseURL:                    grayImagesConfig.BaseURL,
-		Timeout:                    grayImagesConfig.Timeout * time.Second,
-		APIKey:                     grayImagesConfig.APIKey,
-		ScanEndpoint:               grayImagesConfig.ScanEndpoint,
-		FailThreshold:              grayImagesConfig.FailThreshold,
-		returnOrigIfMaxSizeExc:     grayImagesConfig.returnOrigIfMaxSizeExc,
-		return400IfFileExtRejected: grayImagesConfig.return400IfFileExtRejected,
+		maxFileSize:                grayimagesConfig.maxFileSize,
+		bypassExts:                 grayimagesConfig.bypassExts,
+		processExts:                grayimagesConfig.processExts,
+		rejectExts:                 grayimagesConfig.rejectExts,
+		extArrs:                    grayimagesConfig.extArrs,
+		BaseURL:                    grayimagesConfig.BaseURL,
+		Timeout:                    grayimagesConfig.Timeout * time.Second,
+		APIKey:                     grayimagesConfig.APIKey,
+		ScanEndpoint:               grayimagesConfig.ScanEndpoint,
+		FailThreshold:              grayimagesConfig.FailThreshold,
+		returnOrigIfMaxSizeExc:     grayimagesConfig.returnOrigIfMaxSizeExc,
+		return400IfFileExtRejected: grayimagesConfig.return400IfFileExtRejected,
 	}
 }

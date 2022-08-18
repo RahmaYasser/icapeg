@@ -2,18 +2,14 @@ package grayimages
 
 import (
 	"bytes"
-	"fmt"
 	"icapeg/utils"
-	"image"
-	"image/jpeg"
-	"image/png"
 	"io"
 	"net/http"
-	"os"
 	"strconv"
 	"time"
 )
 
+// Processing is a func used for to processing the http message
 func (e *GrayImages) Processing(partial bool) (int, interface{}, map[string]string) {
 	serviceHeaders := make(map[string]string)
 	// no need to scan part of the file, this service needs all the file at ine time
@@ -130,54 +126,7 @@ func (e *GrayImages) Processing(partial bool) (int, interface{}, map[string]stri
 	return utils.OkStatusCodeStr, e.generalFunc.ReturningHttpMessageWithFile(e.methodName, scannedFile), serviceHeaders
 }
 
-func (g *GrayImages) ISTagValue() string {
+func (e *GrayImages) ISTagValue() string {
 	epochTime := strconv.FormatInt(time.Now().Unix(), 10)
 	return "epoch-" + epochTime
-}
-
-func (g *GrayImages) ConvertImgToGrayScale(imgExtension string) (*os.File, error) {
-
-	/*img, _, err := image.Decode(resp.Body)
-	if err != nil {
-		// handle error
-		log.Println(err)
-		return nil, err
-	}
-	log.Printf("Image type: %T", img)*/
-
-	// Converting image to grayscale
-	img, err := g.generalFunc.GetDecodedImage(g.methodName)
-	grayImg := image.NewGray(img.Bounds())
-	for y := img.Bounds().Min.Y; y < img.Bounds().Max.Y; y++ {
-		for x := img.Bounds().Min.X; x < img.Bounds().Max.X; x++ {
-			grayImg.Set(x, y, img.At(x, y))
-		}
-	}
-
-	// Working with grayscale image, e.g. convert to png
-	if imgExtension == "png" {
-		newImg, err := os.CreateTemp("./gray_images", "*.png")
-		fmt.Println(newImg.Name())
-		if err != nil {
-			fmt.Println("err: ", err)
-			return nil, err
-		}
-		if err := png.Encode(newImg, grayImg); err != nil {
-			return nil, err
-		}
-		return newImg, nil
-	} else if imgExtension == "jpeg" || imgExtension == "jpg" {
-		pattern := fmt.Sprintf("*.%s", imgExtension)
-		newImg, err := os.CreateTemp("./gray_images", pattern)
-		fmt.Println(newImg.Name())
-		if err != nil {
-			fmt.Println("err: ", err)
-			return nil, err
-		}
-		if err := jpeg.Encode(newImg, grayImg, nil); err != nil {
-			return nil, err
-		}
-		return newImg, nil
-	}
-	return nil, err
 }
