@@ -7,6 +7,7 @@ import (
 	"html/template"
 	"icapeg/service/services-utilities/ContentTypes"
 	"icapeg/utils"
+	"image"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -104,7 +105,6 @@ func (f *GeneralFunc) IfFileExtIsX(fileExtension string, arr []string) bool {
 	return false
 }
 
-
 // IfFileExtIsReject is a func to check if a file extension is bypass extension or not
 func (f *GeneralFunc) IfFileExtIsReject(fileExtension string, rejectExts []string) error {
 	if utils.InStringSlice(fileExtension, rejectExts) {
@@ -112,7 +112,6 @@ func (f *GeneralFunc) IfFileExtIsReject(fileExtension string, rejectExts []strin
 	}
 	return nil
 }
-
 
 // IfFileExtIsBypassAndNotProcess is a func to check if a file extension is bypass extension and not a process extension
 func (f *GeneralFunc) IfFileExtIsBypassAndNotProcess(fileExtension string, bypassExts []string, processExts []string) error {
@@ -306,7 +305,6 @@ func (f *GeneralFunc) IfICAPStatusIs204(methodName string, status int, file *byt
 	return fileAfterPrep, httpMessage
 }
 
-
 // function to return the suitable http message (http request, http response)
 func (f *GeneralFunc) returningHttpMessage(methodName string, file []byte) interface{} {
 	switch methodName {
@@ -320,4 +318,18 @@ func (f *GeneralFunc) returningHttpMessage(methodName string, file []byte) inter
 		return f.httpMsg.Response
 	}
 	return nil
+}
+
+func (f *GeneralFunc) GetDecodedImage(methodName string) (image.Image, error) {
+	var img image.Image
+	var err error
+	switch methodName {
+	case utils.ICAPModeReq:
+		img, _, err = image.Decode(f.httpMsg.Request.Body)
+		break
+	case utils.ICAPModeResp:
+		img, _, err = image.Decode(f.httpMsg.Response.Body)
+		break
+	}
+	return img, err
 }
