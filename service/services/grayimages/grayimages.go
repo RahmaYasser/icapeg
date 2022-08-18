@@ -53,46 +53,46 @@ func (g *GrayImages) Processing(partial bool) (int, interface{}, map[string]stri
 
 	//check if the file extension is a bypass extension
 	//if yes we will not modify the file, and we will return 204 No modifications
-	for i := 0; i < 3; i++ {
-		if g.extArrs[i].Name == "process" {
-			if g.generalFunc.IfFileExtIsX(fileExtension, g.processExts) {
-				break
-			}
-		} else if g.extArrs[i].Name == "reject" {
-			if g.generalFunc.IfFileExtIsX(fileExtension, g.rejectExts) {
-				reason := "File rejected"
-				if g.return400IfFileExtRejected {
-					return utils.BadRequestStatusCodeStr, nil, serviceHeaders
+	/*	for i := 0; i < 3; i++ {
+			if g.extArrs[i].Name == "process" {
+				if g.generalFunc.IfFileExtIsX(fileExtension, g.processExts) {
+					break
 				}
-				errPage := g.generalFunc.GenHtmlPage("service/unprocessable-file.html", reason, g.serviceName, "ECHO ID", g.httpMsg.Request.RequestURI)
-				g.httpMsg.Response = g.generalFunc.ErrPageResp(http.StatusForbidden, errPage.Len())
-				g.httpMsg.Response.Body = io.NopCloser(bytes.NewBuffer(errPage.Bytes()))
-				return utils.OkStatusCodeStr, g.httpMsg.Response, serviceHeaders
-			}
-		} else if g.extArrs[i].Name == "bypass" {
-			log.Println("70")
-			if g.generalFunc.IfFileExtIsX(fileExtension, g.bypassExts) {
-				fileAfterPrep, httpMsg := g.generalFunc.IfICAPStatusIs204(g.methodName, utils.NoModificationStatusCodeStr,
-					file, false, reqContentType, g.httpMsg)
-				if fileAfterPrep == nil && httpMsg == nil {
-					return utils.InternalServerErrStatusCodeStr, nil, nil
+			} else if g.extArrs[i].Name == "reject" {
+				if g.generalFunc.IfFileExtIsX(fileExtension, g.rejectExts) {
+					reason := "File rejected"
+					if g.return400IfFileExtRejected {
+						return utils.BadRequestStatusCodeStr, nil, serviceHeaders
+					}
+					errPage := g.generalFunc.GenHtmlPage("service/unprocessable-file.html", reason, g.serviceName, "ECHO ID", g.httpMsg.Request.RequestURI)
+					g.httpMsg.Response = g.generalFunc.ErrPageResp(http.StatusForbidden, errPage.Len())
+					g.httpMsg.Response.Body = io.NopCloser(bytes.NewBuffer(errPage.Bytes()))
+					return utils.OkStatusCodeStr, g.httpMsg.Response, serviceHeaders
 				}
+			} else if g.extArrs[i].Name == "bypass" {
+				log.Println("70")
+				if g.generalFunc.IfFileExtIsX(fileExtension, g.bypassExts) {
+					fileAfterPrep, httpMsg := g.generalFunc.IfICAPStatusIs204(g.methodName, utils.NoModificationStatusCodeStr,
+						file, false, reqContentType, g.httpMsg)
+					if fileAfterPrep == nil && httpMsg == nil {
+						return utils.InternalServerErrStatusCodeStr, nil, nil
+					}
 
-				//returning the http message and the ICAP status code
-				switch msg := httpMsg.(type) {
-				case *http.Request:
-					msg.Body = io.NopCloser(bytes.NewBuffer(fileAfterPrep))
-					return utils.NoModificationStatusCodeStr, msg, serviceHeaders
-				case *http.Response:
-					msg.Body = io.NopCloser(bytes.NewBuffer(fileAfterPrep))
-					log.Println("88")
-					return utils.NoModificationStatusCodeStr, msg, serviceHeaders
+					//returning the http message and the ICAP status code
+					switch msg := httpMsg.(type) {
+					case *http.Request:
+						msg.Body = io.NopCloser(bytes.NewBuffer(fileAfterPrep))
+						return utils.NoModificationStatusCodeStr, msg, serviceHeaders
+					case *http.Response:
+						msg.Body = io.NopCloser(bytes.NewBuffer(fileAfterPrep))
+						log.Println("88")
+						return utils.NoModificationStatusCodeStr, msg, serviceHeaders
+					}
+					return utils.NoModificationStatusCodeStr, nil, serviceHeaders
 				}
-				return utils.NoModificationStatusCodeStr, nil, serviceHeaders
 			}
 		}
-	}
-
+	*/
 	//check if the file size is greater than max file size of the service
 	//if yes we will return 200 ok or 204 no modification, it depends on the configuration of the service
 	if g.maxFileSize != 0 && g.maxFileSize < file.Len() {
