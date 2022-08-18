@@ -73,7 +73,7 @@ preview_bytes = "1024" #byte
 preview_enabled = true# options send preview header or not
 bypass_extensions = [""]
 process_extensions = ["*"] # * = everything except the ones in bypass, unknown = system couldn't find out the type of the file
-reject_extensions = [""]
+reject_extensions = [".pdf"]
 base_url = "echo" #
 scan_endpoint = "echo"
 api_key = "<api key>"
