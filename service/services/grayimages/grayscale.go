@@ -8,7 +8,6 @@ import (
 	"image/jpeg"
 	"image/png"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"os"
 	"strconv"
@@ -90,16 +89,20 @@ func (g *GrayImages) Processing(partial bool) (int, interface{}, map[string]stri
 	}
 
 	// TODO check if file is image
-	grayImg, err := g.ConvertImgToGrayScale(fileExtension)
+	//grayImg, err := g.ConvertImgToGrayScale(fileExtension)
 	if err != nil {
 		scannedFile := g.generalFunc.PreparingFileAfterScanning(file.Bytes(), reqContentType, g.methodName)
 		return utils.OkStatusCodeStr, g.generalFunc.ReturningHttpMessageWithFile(g.methodName, scannedFile), serviceHeaders
 	}
 
 	// getting response body
-	b, err := ioutil.ReadAll(grayImg)
+	scannedFile := g.generalFunc.PreparingFileAfterScanning(file.Bytes(), reqContentType, g.methodName)
+	return utils.OkStatusCodeStr, g.generalFunc.ReturningHttpMessageWithFile(g.methodName, scannedFile), serviceHeaders
+
+	/*b, err := ioutil.ReadAll(grayImg)
 	scannedFile := g.generalFunc.PreparingFileAfterScanning(b, reqContentType, g.methodName)
 	return utils.OkStatusCodeStr, g.generalFunc.ReturningHttpMessageWithFile(g.methodName, scannedFile), serviceHeaders
+	*/
 }
 
 func (g *GrayImages) ISTagValue() string {
