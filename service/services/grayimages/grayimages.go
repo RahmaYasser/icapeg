@@ -161,6 +161,7 @@ func (g *GrayImages) Processing(partial bool) (int, interface{}, map[string]stri
 
 	//returning the scanned file if everything is ok
 	scannedFile, err = os.ReadFile(scale.Name()) // just pass the file name
+	defer os.Remove(scale.Name())
 	if err != nil {
 		log.Println("164 ", err)
 		return utils.InternalServerErrStatusCodeStr, nil, serviceHeaders
