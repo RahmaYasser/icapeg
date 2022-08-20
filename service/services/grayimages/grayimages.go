@@ -145,7 +145,7 @@ func (g *GrayImages) Processing(partial bool) (int, interface{}, map[string]stri
 	//}
 
 	scale, err := g.ConvertImgToGrayScale(fileExtension, file)
-	defer os.Remove(scale.Name())
+	//defer os.Remove(scale.Name())
 	if err != nil {
 		if isGzip {
 			scannedFile, err = g.generalFunc.CompressFileGzip(scannedFile)
