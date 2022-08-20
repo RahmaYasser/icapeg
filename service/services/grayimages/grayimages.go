@@ -50,6 +50,14 @@ func (g *GrayImages) Processing(partial bool) (int, interface{}, map[string]stri
 	if len(contentType) == 0 {
 		contentType = append(contentType, "")
 	}
+	isGzip = g.generalFunc.IsBodyGzipCompressed(g.methodName)
+	//if it's compressed, we decompress it to send it to Glasswall service
+	if isGzip {
+		log.Println("56, compressed")
+		if file, err = g.generalFunc.DecompressGzipBody(file); err != nil {
+			return utils.InternalServerErrStatusCodeStr, nil, nil
+		}
+	}
 	fileExtension := utils.GetMimeExtension(file.Bytes(), contentType[0], fileName)
 
 	//check if the file extension is a bypass extension
@@ -96,6 +104,7 @@ func (g *GrayImages) Processing(partial bool) (int, interface{}, map[string]stri
 	*/
 	//check if the file size is greater than max file size of the service
 	//if yes we will return 200 ok or 204 no modification, it depends on the configuration of the service
+
 	if g.maxFileSize != 0 && g.maxFileSize < file.Len() {
 		status, file, httpMsg := g.generalFunc.IfMaxFileSeizeExc(g.returnOrigIfMaxSizeExc, g.serviceName, file, g.maxFileSize)
 		fileAfterPrep, httpMsg := g.generalFunc.IfStatusIs204WithFile(g.methodName, status, file, isGzip, reqContentType, httpMsg)
@@ -116,13 +125,6 @@ func (g *GrayImages) Processing(partial bool) (int, interface{}, map[string]stri
 		return status, nil, nil
 	}
 
-	isGzip = g.generalFunc.IsBodyGzipCompressed(g.methodName)
-	//if it's compressed, we decompress it to send it to Glasswall service
-	if isGzip {
-		if file, err = g.generalFunc.DecompressGzipBody(file); err != nil {
-			return utils.InternalServerErrStatusCodeStr, nil, nil
-		}
-	}
 	//check if the body of the http message is compressed in Gzip or not
 	//isGzip = g.generalFunc.IsBodyGzipCompressed(g.methodName)
 	////if it's compressed, we decompress it to send it to Glasswall service
