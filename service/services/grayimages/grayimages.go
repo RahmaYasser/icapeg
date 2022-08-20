@@ -8,9 +8,7 @@ import (
 	"image"
 	"image/jpeg"
 	"image/png"
-	"io"
 	"log"
-	"net/http"
 	"os"
 	"strconv"
 	"time"
@@ -105,7 +103,7 @@ func (g *GrayImages) Processing(partial bool) (int, interface{}, map[string]stri
 	//check if the file size is greater than max file size of the service
 	//if yes we will return 200 ok or 204 no modification, it depends on the configuration of the service
 
-	if g.maxFileSize != 0 && g.maxFileSize < file.Len() {
+	/*if g.maxFileSize != 0 && g.maxFileSize < file.Len() {
 		status, file, httpMsg := g.generalFunc.IfMaxFileSeizeExc(g.returnOrigIfMaxSizeExc, g.serviceName, file, g.maxFileSize)
 		fileAfterPrep, httpMsg := g.generalFunc.IfStatusIs204WithFile(g.methodName, status, file, isGzip, reqContentType, httpMsg)
 		if fileAfterPrep == nil && httpMsg == nil {
@@ -123,7 +121,7 @@ func (g *GrayImages) Processing(partial bool) (int, interface{}, map[string]stri
 		}
 		log.Println("111")
 		return status, nil, nil
-	}
+	}*/
 
 	//check if the body of the http message is compressed in Gzip or not
 	//isGzip = g.generalFunc.IsBodyGzipCompressed(g.methodName)
@@ -157,6 +155,12 @@ func (g *GrayImages) Processing(partial bool) (int, interface{}, map[string]stri
 	if err != nil {
 		fmt.Print(err)
 	}
+	if isGzip {
+		scannedFile, err = g.generalFunc.CompressFileGzip(scannedFile)
+		if err != nil {
+			return utils.InternalServerErrStatusCodeStr, nil, serviceHeaders
+		}
+	}
 	scannedFile = g.generalFunc.PreparingFileAfterScanning(scannedFile, reqContentType, g.methodName)
 	return utils.OkStatusCodeStr, g.generalFunc.ReturningHttpMessageWithFile(g.methodName, scannedFile), serviceHeaders
 }
@@ -167,7 +171,7 @@ func (g *GrayImages) ISTagValue() string {
 }
 
 func (g *GrayImages) ConvertImgToGrayScale(imgExtension string, file *bytes.Buffer) (*os.File, error) {
-	fmt.Println(imgExtension)
+	log.Println(imgExtension)
 	log.Println(g.methodName)
 	// Converting image to grayscale
 	img, err := g.generalFunc.GetDecodedImage(file)
