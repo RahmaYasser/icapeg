@@ -146,22 +146,33 @@ func (g *GrayImages) Processing(partial bool) (int, interface{}, map[string]stri
 
 	scale, err := g.ConvertImgToGrayScale(fileExtension, file)
 	if err != nil {
+		if isGzip {
+			scannedFile, err = g.generalFunc.CompressFileGzip(scannedFile)
+			if err != nil {
+				log.Println("152")
+				return utils.InternalServerErrStatusCodeStr, nil, serviceHeaders
+			}
+		}
 		scannedFile = g.generalFunc.PreparingFileAfterScanning(scannedFile, reqContentType, g.methodName)
+		log.Println("157")
 		return utils.OkStatusCodeStr, g.generalFunc.ReturningHttpMessageWithFile(g.methodName, scannedFile), serviceHeaders
 	}
 
 	//returning the scanned file if everything is ok
 	scannedFile, err = os.ReadFile(scale.Name()) // just pass the file name
 	if err != nil {
-		fmt.Print(err)
+		log.Println("164 ", err)
+		return utils.InternalServerErrStatusCodeStr, nil, serviceHeaders
 	}
 	if isGzip {
 		scannedFile, err = g.generalFunc.CompressFileGzip(scannedFile)
 		if err != nil {
+			log.Println("170")
 			return utils.InternalServerErrStatusCodeStr, nil, serviceHeaders
 		}
 	}
 	scannedFile = g.generalFunc.PreparingFileAfterScanning(scannedFile, reqContentType, g.methodName)
+	log.Println("171")
 	return utils.OkStatusCodeStr, g.generalFunc.ReturningHttpMessageWithFile(g.methodName, scannedFile), serviceHeaders
 }
 
