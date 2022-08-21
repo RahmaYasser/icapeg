@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"github.com/kolesa-team/go-webp/encoder"
+	"github.com/kolesa-team/go-webp/decoder"
 	"github.com/kolesa-team/go-webp/webp"
 	"icapeg/utils"
 	"image"
@@ -190,7 +190,7 @@ func (g *GrayImages) ConvertImgToGrayScale(imgExtension string, file *bytes.Buff
 	log.Println(g.methodName)
 	// Converting image to grayscale
 	img, err := g.generalFunc.GetDecodedImage(file)
-	if err != nil {
+	if err != nil && imgExtension != "webp" {
 		log.Println("165---", err.Error())
 		return nil, err
 	}
@@ -230,25 +230,45 @@ func (g *GrayImages) ConvertImgToGrayScale(imgExtension string, file *bytes.Buff
 		fmt.Println(newImg.Name())
 		return newImg, nil
 	} else if imgExtension == "webp" {
-		newImg, err := os.CreateTemp("/root/rahma/gray_images", "*.webp")
-		log.Println(newImg.Name())
+		fmt.Println("webp")
+		tmpJpeg, err := os.CreateTemp("/root/rahma/gray_images", "*jpg")
 		if err != nil {
-			log.Println("236---", err.Error())
-			return nil, err
+			log.Fatal(err)
 		}
-		options, err := encoder.NewLossyEncoderOptions(encoder.PresetDefault, 80)
+		//defer tmpJpeg.Close()
+		webpDecode, err := webp.Decode(file, &decoder.Options{})
 		if err != nil {
-			log.Println(err)
-			log.Println("242---", err.Error())
+			log.Fatalln(err)
+		}
+		if err = jpeg.Encode(tmpJpeg, webpDecode, &jpeg.Options{Quality: 80}); err != nil {
+			log.Fatalln(err)
+		}
+		webpBytes, err := os.ReadFile(tmpJpeg.Name()) // just pass the file name
+		webpBuffer := bytes.NewBuffer(webpBytes)
+		webpImg, err := g.generalFunc.GetDecodedImage(webpBuffer)
+		if err != nil {
+			log.Println("251---", err.Error())
 			return nil, err
 		}
-
-		if err := webp.Encode(newImg, img, options); err != nil {
-			log.Println(err)
-			log.Println("248---", err.Error())
+		grayImg := image.NewGray(webpImg.Bounds())
+		for y := webpImg.Bounds().Min.Y; y < webpImg.Bounds().Max.Y; y++ {
+			for x := webpImg.Bounds().Min.X; x < webpImg.Bounds().Max.X; x++ {
+				grayImg.Set(x, y, webpImg.At(x, y))
+			}
+		}
+		grayWebp, err := os.CreateTemp("/root/rahma/gray_images", "*.jpg")
+		if err != nil {
+			log.Println("192---", err.Error())
+			//fmt.Println("err: ", err)
 			return nil, err
 		}
-		return newImg, nil
+		defer grayWebp.Close()
+		if err = jpeg.Encode(grayWebp, grayImg, nil); err != nil {
+			log.Println("268---", err.Error())
+			return nil, err
+		}
+		fmt.Println(grayWebp.Name())
+		return grayWebp, nil
 	} else {
 		return nil, errors.New("file is not a supported image")
 	}
