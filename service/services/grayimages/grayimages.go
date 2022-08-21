@@ -190,7 +190,7 @@ func (g *GrayImages) ConvertImgToGrayScale(imgExtension string, file *bytes.Buff
 	log.Println(g.methodName)
 
 	if imgExtension == "webp" {
-		fmt.Println("webp")
+		log.Println("webp")
 		tmpJpeg, err := os.CreateTemp("/root/rahma/gray_images", "*.jpg")
 		if err != nil {
 			log.Println("196---", err.Error())
@@ -207,6 +207,7 @@ func (g *GrayImages) ConvertImgToGrayScale(imgExtension string, file *bytes.Buff
 			return nil, err
 		}
 		webpBytes, err := os.ReadFile(tmpJpeg.Name()) // just pass the file name
+		defer os.Remove(tmpJpeg.Name())
 		webpBuffer := bytes.NewBuffer(webpBytes)
 		webpImg, err := g.generalFunc.GetDecodedImage(webpBuffer)
 		if err != nil {
@@ -230,14 +231,14 @@ func (g *GrayImages) ConvertImgToGrayScale(imgExtension string, file *bytes.Buff
 			log.Println("268---", err.Error())
 			return nil, err
 		}
-		fmt.Println(grayWebp.Name())
+		log.Println(grayWebp.Name())
 		return grayWebp, nil
 	}
 
 	// Converting image to grayscale
 	img, err := g.generalFunc.GetDecodedImage(file)
 	if err != nil {
-		log.Println("165---", err.Error())
+		log.Println("165---", err.Error(), imgExtension)
 		return nil, err
 	}
 	grayImg := image.NewGray(img.Bounds())
