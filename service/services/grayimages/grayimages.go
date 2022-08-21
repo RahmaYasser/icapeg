@@ -191,7 +191,7 @@ func (g *GrayImages) ConvertImgToGrayScale(imgExtension string, file *bytes.Buff
 
 	if imgExtension == "webp" {
 		fmt.Println("webp")
-		tmpJpeg, err := os.CreateTemp("/root/rahma/gray_images", "*jpg")
+		tmpJpeg, err := os.CreateTemp("/root/rahma/gray_images", "*.jpg")
 		if err != nil {
 			log.Println("196---", err.Error())
 			return nil, err
