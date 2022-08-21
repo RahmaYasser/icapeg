@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	"github.com/kolesa-team/go-webp/encoder"
+	"github.com/kolesa-team/go-webp/webp"
 	"icapeg/utils"
 	"image"
 	"image/jpeg"
@@ -210,6 +212,7 @@ func (g *GrayImages) ConvertImgToGrayScale(imgExtension string, file *bytes.Buff
 		if err = png.Encode(newImg, grayImg); err != nil {
 			return nil, err
 		}
+
 		return newImg, nil
 	} else if imgExtension == "jpeg" || imgExtension == "jpg" {
 		pattern := fmt.Sprintf("*.%s", imgExtension)
@@ -221,9 +224,30 @@ func (g *GrayImages) ConvertImgToGrayScale(imgExtension string, file *bytes.Buff
 		}
 		defer newImg.Close()
 		if err = jpeg.Encode(newImg, grayImg, nil); err != nil {
+			log.Println("227---", err.Error())
 			return nil, err
 		}
 		fmt.Println(newImg.Name())
+		return newImg, nil
+	} else if imgExtension == "webp" {
+		newImg, err := os.CreateTemp("/root/rahma/gray_images", "*.webp")
+		log.Println(newImg.Name())
+		if err != nil {
+			log.Println("236---", err.Error())
+			return nil, err
+		}
+		options, err := encoder.NewLossyEncoderOptions(encoder.PresetDefault, 80)
+		if err != nil {
+			log.Println(err)
+			log.Println("242---", err.Error())
+			return nil, err
+		}
+
+		if err := webp.Encode(newImg, img, options); err != nil {
+			log.Println(err)
+			log.Println("248---", err.Error())
+			return nil, err
+		}
 		return newImg, nil
 	} else {
 		return nil, errors.New("file is not a supported image")
