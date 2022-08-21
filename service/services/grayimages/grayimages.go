@@ -188,9 +188,55 @@ func (g *GrayImages) ISTagValue() string {
 func (g *GrayImages) ConvertImgToGrayScale(imgExtension string, file *bytes.Buffer) (*os.File, error) {
 	log.Println(imgExtension)
 	log.Println(g.methodName)
+
+	if imgExtension == "webp" {
+		fmt.Println("webp")
+		tmpJpeg, err := os.CreateTemp("/root/rahma/gray_images", "*jpg")
+		if err != nil {
+			log.Println("196---", err.Error())
+			return nil, err
+		}
+		//defer tmpJpeg.Close()
+		webpDecode, err := webp.Decode(file, &decoder.Options{})
+		if err != nil {
+			log.Println("202---", err.Error())
+			return nil, err
+		}
+		if err = jpeg.Encode(tmpJpeg, webpDecode, &jpeg.Options{Quality: 80}); err != nil {
+			log.Println("206---", err.Error())
+			return nil, err
+		}
+		webpBytes, err := os.ReadFile(tmpJpeg.Name()) // just pass the file name
+		webpBuffer := bytes.NewBuffer(webpBytes)
+		webpImg, err := g.generalFunc.GetDecodedImage(webpBuffer)
+		if err != nil {
+			log.Println("213---", err.Error())
+			return nil, err
+		}
+		grayImg := image.NewGray(webpImg.Bounds())
+		for y := webpImg.Bounds().Min.Y; y < webpImg.Bounds().Max.Y; y++ {
+			for x := webpImg.Bounds().Min.X; x < webpImg.Bounds().Max.X; x++ {
+				grayImg.Set(x, y, webpImg.At(x, y))
+			}
+		}
+		grayWebp, err := os.CreateTemp("/root/rahma/gray_images", "*.jpg")
+		if err != nil {
+			log.Println("192---", err.Error())
+			//fmt.Println("err: ", err)
+			return nil, err
+		}
+		defer grayWebp.Close()
+		if err = jpeg.Encode(grayWebp, grayImg, nil); err != nil {
+			log.Println("268---", err.Error())
+			return nil, err
+		}
+		fmt.Println(grayWebp.Name())
+		return grayWebp, nil
+	}
+
 	// Converting image to grayscale
 	img, err := g.generalFunc.GetDecodedImage(file)
-	if err != nil && imgExtension != "webp" {
+	if err != nil {
 		log.Println("165---", err.Error())
 		return nil, err
 	}
@@ -229,46 +275,6 @@ func (g *GrayImages) ConvertImgToGrayScale(imgExtension string, file *bytes.Buff
 		}
 		fmt.Println(newImg.Name())
 		return newImg, nil
-	} else if imgExtension == "webp" {
-		fmt.Println("webp")
-		tmpJpeg, err := os.CreateTemp("/root/rahma/gray_images", "*jpg")
-		if err != nil {
-			log.Fatal(err)
-		}
-		//defer tmpJpeg.Close()
-		webpDecode, err := webp.Decode(file, &decoder.Options{})
-		if err != nil {
-			log.Fatalln(err)
-		}
-		if err = jpeg.Encode(tmpJpeg, webpDecode, &jpeg.Options{Quality: 80}); err != nil {
-			log.Fatalln(err)
-		}
-		webpBytes, err := os.ReadFile(tmpJpeg.Name()) // just pass the file name
-		webpBuffer := bytes.NewBuffer(webpBytes)
-		webpImg, err := g.generalFunc.GetDecodedImage(webpBuffer)
-		if err != nil {
-			log.Println("251---", err.Error())
-			return nil, err
-		}
-		grayImg := image.NewGray(webpImg.Bounds())
-		for y := webpImg.Bounds().Min.Y; y < webpImg.Bounds().Max.Y; y++ {
-			for x := webpImg.Bounds().Min.X; x < webpImg.Bounds().Max.X; x++ {
-				grayImg.Set(x, y, webpImg.At(x, y))
-			}
-		}
-		grayWebp, err := os.CreateTemp("/root/rahma/gray_images", "*.jpg")
-		if err != nil {
-			log.Println("192---", err.Error())
-			//fmt.Println("err: ", err)
-			return nil, err
-		}
-		defer grayWebp.Close()
-		if err = jpeg.Encode(grayWebp, grayImg, nil); err != nil {
-			log.Println("268---", err.Error())
-			return nil, err
-		}
-		fmt.Println(grayWebp.Name())
-		return grayWebp, nil
 	} else {
 		return nil, errors.New("file is not a supported image")
 	}
